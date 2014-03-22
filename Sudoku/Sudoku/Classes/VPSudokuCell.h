@@ -16,4 +16,6 @@
 @property (nonatomic, assign) NSInteger value;
 @property (nonatomic, assign) NSInteger index;
 
+- (void) toggleVisibleState;
+
 @end

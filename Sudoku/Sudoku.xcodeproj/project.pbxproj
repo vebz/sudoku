@@ -14,7 +14,6 @@
 		F08098F518D9BA5A00386F8B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F08098F418D9BA5A00386F8B /* main.m */; };
 		F08098F918D9BA5A00386F8B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F08098F818D9BA5A00386F8B /* AppDelegate.m */; };
 		F08098FC18D9BA5A00386F8B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F08098FA18D9BA5A00386F8B /* Main.storyboard */; };
-		F08098FF18D9BA5A00386F8B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F08098FE18D9BA5A00386F8B /* ViewController.m */; };
 		F080990118D9BA5A00386F8B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F080990018D9BA5A00386F8B /* Images.xcassets */; };
 		F080990818D9BA5A00386F8B /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F080990718D9BA5A00386F8B /* XCTest.framework */; };
 		F080990918D9BA5A00386F8B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F08098E818D9BA5A00386F8B /* Foundation.framework */; };
@@ -25,6 +24,8 @@
 		F080992318D9CA1500386F8B /* VPSudokuBoard.m in Sources */ = {isa = PBXBuildFile; fileRef = F080992218D9CA1500386F8B /* VPSudokuBoard.m */; };
 		F080992618D9CA4C00386F8B /* VPSudokuBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = F080992518D9CA4C00386F8B /* VPSudokuBlock.m */; };
 		F080992718D9CA4C00386F8B /* VPSudokuBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = F080992518D9CA4C00386F8B /* VPSudokuBlock.m */; };
+		F082981B18DC93540015543C /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F082981A18DC93540015543C /* ViewController.m */; };
+		F082981C18DC93540015543C /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F082981A18DC93540015543C /* ViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,8 +50,6 @@
 		F08098F718D9BA5A00386F8B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		F08098F818D9BA5A00386F8B /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		F08098FB18D9BA5A00386F8B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		F08098FD18D9BA5A00386F8B /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		F08098FE18D9BA5A00386F8B /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		F080990018D9BA5A00386F8B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		F080990618D9BA5A00386F8B /* SudokuTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SudokuTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F080990718D9BA5A00386F8B /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -63,6 +62,8 @@
 		F080992218D9CA1500386F8B /* VPSudokuBoard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = VPSudokuBoard.m; path = Classes/VPSudokuBoard.m; sourceTree = "<group>"; };
 		F080992418D9CA4C00386F8B /* VPSudokuBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VPSudokuBlock.h; path = Classes/VPSudokuBlock.h; sourceTree = "<group>"; };
 		F080992518D9CA4C00386F8B /* VPSudokuBlock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = VPSudokuBlock.m; path = Classes/VPSudokuBlock.m; sourceTree = "<group>"; };
+		F082981918DC93540015543C /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ViewController.h; path = Classes/ViewController.h; sourceTree = "<group>"; };
+		F082981A18DC93540015543C /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ViewController.m; path = Classes/ViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,8 +127,6 @@
 				F08098F718D9BA5A00386F8B /* AppDelegate.h */,
 				F08098F818D9BA5A00386F8B /* AppDelegate.m */,
 				F08098FA18D9BA5A00386F8B /* Main.storyboard */,
-				F08098FD18D9BA5A00386F8B /* ViewController.h */,
-				F08098FE18D9BA5A00386F8B /* ViewController.m */,
 				F080990018D9BA5A00386F8B /* Images.xcassets */,
 				F08098EF18D9BA5A00386F8B /* Supporting Files */,
 			);
@@ -166,6 +165,8 @@
 		F080992018D9C8C400386F8B /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				F082981918DC93540015543C /* ViewController.h */,
+				F082981A18DC93540015543C /* ViewController.m */,
 				F080991D18D9C8BE00386F8B /* VPSudokuCell.h */,
 				F080991E18D9C8BE00386F8B /* VPSudokuCell.m */,
 				F080992118D9CA1500386F8B /* VPSudokuBoard.h */,
@@ -273,8 +274,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F082981B18DC93540015543C /* ViewController.m in Sources */,
 				F080992318D9CA1500386F8B /* VPSudokuBoard.m in Sources */,
-				F08098FF18D9BA5A00386F8B /* ViewController.m in Sources */,
 				F080992618D9CA4C00386F8B /* VPSudokuBlock.m in Sources */,
 				F08098F918D9BA5A00386F8B /* AppDelegate.m in Sources */,
 				F080991F18D9C8BE00386F8B /* VPSudokuCell.m in Sources */,
@@ -286,6 +287,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F082981C18DC93540015543C /* ViewController.m in Sources */,
 				F080992718D9CA4C00386F8B /* VPSudokuBlock.m in Sources */,
 				F080991418D9BA5A00386F8B /* SudokuTests.m in Sources */,
 			);
@@ -486,6 +488,7 @@
 				F080991918D9BA5A00386F8B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		F080991A18D9BA5A00386F8B /* Build configuration list for PBXNativeTarget "SudokuTests" */ = {
 			isa = XCConfigurationList;
@@ -494,6 +497,7 @@
 				F080991C18D9BA5A00386F8B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -10,9 +10,29 @@
 
 
 @interface VPSudokuCell ()
-
+{
+    BOOL visibleState;
+}
 @end
 
 @implementation VPSudokuCell
+
+
+- (id) init
+{
+    self = [super init];
+    
+    if(self)
+    {
+        visibleState = YES;
+    }
+    
+    return self;
+}
+
+- (void) toggleVisibleState
+{
+    visibleState = !visibleState;
+}
 
 @end

@@ -9,11 +9,22 @@
 #import "ViewController.h"
 #import "VPSudokuCell.h"
 
+
+enum DifficultyState {
+    DifficultyStateEasy = 0,
+    DifficultyStateMedium,
+    DifficultyStateHard,
+};
+
 @interface ViewController () {
     NSMutableArray *squares;
     NSMutableArray *available;
     
     NSInteger currentSquare;
+    
+    enum DifficultyState difficultyState;
+    NSRange *difficultyRange;
+    NSInteger numberOfVisibleCells;
 }
 
 @end
@@ -27,6 +38,9 @@
 	// Do any additional setup after loading the view, typically from a nib.
     squares = [NSMutableArray arrayWithCapacity:81];
     available = [NSMutableArray arrayWithCapacity:81];
+    [_difficultySlider setValue:DifficultyStateEasy];
+    
+    [self setDifficultySettings];
     [self generateGrid];
 }
 
@@ -51,8 +65,8 @@
         }
     }
 
-    do {
-        
+    do
+    {
         NSMutableArray *currentAvailable = (NSMutableArray *)available[currentSquare];
         if(!currentAvailable.count == 0)
         {
@@ -87,6 +101,7 @@
     } while (currentSquare < 81);
     
     NSLog(@"Grid generated");
+    // Debug output.
     for(int i = 0; i < 81; i++)
     {
         VPSudokuCell *cell = squares[i];
@@ -99,6 +114,7 @@
     }
 }
 
+
 - (VPSudokuCell *) createCellWithCurrentSquare : (NSInteger )currentSquareNumber AndValue : (NSInteger)randomValue
 {
     VPSudokuCell *tempCell = [[VPSudokuCell alloc] init];
@@ -110,7 +126,6 @@
     tempCell.region = [self getRegionValue:sqNum];
     tempCell.index = currentSquareNumber;
     tempCell.value = randomValue;
-    
     
     return tempCell;
 }
@@ -136,6 +151,7 @@
     
     return value;
 }
+
 
 - (NSInteger) getRegionValue : (NSInteger ) sqNum
 {
@@ -203,5 +219,113 @@
     
     return conflict;
 }
+
+
+- (IBAction)generateSudokuGrid:(id)sender
+{
+    NSLog(@"Generating New Sudoku Grid");
+}
+
+- (IBAction)createSudokuFromGrid:(id)sender
+{
+//    for(int i = 0; i < )
+}
+
+- (IBAction)solveSudoku:(id)sender
+{
+    
+}
+
+- (IBAction)difficultyValueChanged:(id)sender
+{
+    UISlider *slider = (UISlider *)sender;
+    
+    const CGFloat DIFFICULTY_EASY = 0.00f;
+    const CGFloat DIFFICULTY_MEDIUM = 0.50f;
+    const CGFloat DIFFICULTY_HARD = 1.0f;
+    
+    if(slider.value <= 0.35f)
+    {
+        slider.value = DIFFICULTY_EASY;
+    }
+    else if(slider.value > 0.35f && slider.value < 0.75f)
+    {
+        slider.value = DIFFICULTY_MEDIUM;
+    }
+    else if(slider.value >= 0.75f)
+    {
+        slider.value = DIFFICULTY_HARD;
+    }
+    
+    
+    NSAssert(DIFFICULTY_EASY == slider.value ||
+             DIFFICULTY_MEDIUM == slider.value ||
+             DIFFICULTY_HARD == slider.value, @"Incorrect Difficulty Settings");
+    
+    
+    if(nil != slider &&
+       [slider isKindOfClass:[UISlider class]])
+    {
+        
+        if(DIFFICULTY_EASY == slider.value)
+        {
+            difficultyState = DifficultyStateEasy;
+        }
+        else if (DIFFICULTY_MEDIUM == slider.value)
+        {
+            difficultyState = DifficultyStateMedium;
+            
+        }
+        else if(DIFFICULTY_HARD == slider.value)
+        {
+            difficultyState = DifficultyStateHard;
+        }
+    }
+    
+    [self setDifficultySettings];
+}
+
+
+- (void)setDifficultySettings
+{
+    const NSInteger LOWER_BOUND_EASY = 50;
+    const NSInteger HIGHER_BOUND_EASY = 60;
+    
+    const NSInteger LOWER_BOUND_MEDIUM = 36;
+    const NSInteger HIGHER_BOUND_MEDIUM = 49;
+    
+    const NSInteger LOWER_BOUND_HARD = 22;
+    const NSInteger HIGHER_BOUND_HARD = 27;
+    
+    srand48(time(0));
+    double randomValue = drand48();
+
+    switch (difficultyState)
+    {
+        case DifficultyStateEasy:
+        {
+           numberOfVisibleCells = LOWER_BOUND_EASY + ((HIGHER_BOUND_EASY - LOWER_BOUND_EASY) * randomValue);
+        }break;
+            
+        case DifficultyStateMedium:
+        {
+            numberOfVisibleCells = LOWER_BOUND_MEDIUM + ((HIGHER_BOUND_MEDIUM - LOWER_BOUND_MEDIUM) * randomValue);
+            
+        }break;
+            
+        case DifficultyStateHard:
+        {
+            numberOfVisibleCells = LOWER_BOUND_HARD +  ((HIGHER_BOUND_HARD - LOWER_BOUND_HARD) * randomValue);
+        }break;
+            
+        default:
+        {
+            NSAssert(YES, @"Incorrect difficulty settings");
+        }break;
+    }
+    
+    NSLog(@"Number of visible cells %d", numberOfVisibleCells);
+}
+
 
 @end
