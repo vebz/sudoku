@@ -23,7 +23,7 @@
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <action selector="generateSudokuGrid:" destination="BYZ-38-t0r" eventType="touchUpInside" id="yWE-Wl-XoR"/>
+                                    <action selector="createSudokuFromGrid:" destination="BYZ-38-t0r" eventType="touchUpInside" id="GbY-Bh-mqR"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BWD-a3-ATN">

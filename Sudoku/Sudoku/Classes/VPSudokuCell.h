@@ -16,6 +16,10 @@
 @property (nonatomic, assign) NSInteger value;
 @property (nonatomic, assign) NSInteger index;
 
+@property (nonatomic, strong) UILabel *cellView;
+
 - (void) toggleVisibleState;
+
+- (void) setVisibleState:(BOOL)newVisibleState;
 
 @end

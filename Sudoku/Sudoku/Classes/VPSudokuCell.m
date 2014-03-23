@@ -30,9 +30,25 @@
     return self;
 }
 
+
 - (void) toggleVisibleState
 {
     visibleState = !visibleState;
+    [self updateViewVisbility];
+}
+
+
+- (void) setVisibleState:(BOOL)newVisibleState
+{
+    visibleState = newVisibleState;
+    [self updateViewVisbility];
+}
+
+
+- (void) updateViewVisbility
+{
+    CGFloat vsibility = (YES == visibleState)? 1.0f : 0.0f;
+    [_cellView setAlpha:vsibility];
 }
 
 @end
