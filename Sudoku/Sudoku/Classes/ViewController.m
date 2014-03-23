@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "VPSudokuCell.h"
+#import "GameConfiguration.h"
 
 enum DifficultyState
 {
@@ -15,16 +16,6 @@ enum DifficultyState
     DifficultyStateMedium,
     DifficultyStateHard,
 };
-
-const CGFloat DIFFICULTY_EASY = 0.0f;
-const CGFloat DIFFICULTY_MEDIUM = 0.50f;
-const CGFloat DIFFICULTY_HARD = 1.0f;
-
-const NSInteger NUMBER_OF_CELLS_PER_ROW_AND_COLS = 9; // Number of cells in a rows and cols. Used for correlation value.
-const NSInteger REGIONS = 6;
-
-const NSInteger totalRegionPerVerticalSlice = 3;
-const NSInteger totalRegionPerHorizontalSlice = 3;
 
 
 @interface ViewController () {
@@ -65,6 +56,84 @@ const NSInteger totalRegionPerHorizontalSlice = 3;
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Grid Generation
+
+- (void)initializeGrid
+{
+    for(VPSudokuCell *currentCell in squares)
+    {
+        if(nil != currentCell)
+        {
+            [currentCell setVisibleState:NO];
+        }
+    }
+    
+    @autoreleasepool {
+        
+        // Get the selected positions.
+        NSMutableArray *totalColoums = [NSMutableArray arrayWithCapacity:9];
+        for(int i = 0 ; i < 9; i++)
+        {
+            NSNumber *colNum = [NSNumber numberWithInteger:(i+1)];
+            [totalColoums addObject:colNum];
+        }
+        
+        // We inverse a no correlation value (0 means complete spread).
+        // Then divide it by total number of regions available.
+        // That gives how many regions shall the cells be spread across.
+        // So for easy level, the spread should be across all the regions.
+        // Hence, we divide by total regions.
+        const CGFloat SPREAD_PER_REGION = 1.0f / 3.0f;
+        NSInteger regionsSelected =  (1 - correlationValue) / SPREAD_PER_REGION; // Get total of number of regions we should select.
+        if(0 == regionsSelected)
+            regionsSelected++; // Need atleast one region per slice
+        
+        NSInteger regionSelectedInverse = totalRegionPerHorizontalSlice - regionsSelected; // Use elimination method to remove region from complete region list.
+        NSMutableArray *selectedRegions = [NSMutableArray arrayWithCapacity:3];
+        NSMutableArray *selectedRegionIndices = [NSMutableArray arrayWithCapacity:(regionsSelected * totalRegionPerVerticalSlice)];
+        
+        // Fill total number regions per slice
+        for (int i = 0; i < totalRegionPerVerticalSlice; i++)
+        {
+            selectedRegions[i] = [NSMutableArray arrayWithCapacity:totalRegionPerHorizontalSlice];
+            
+            for (int j = 0; j < totalRegionPerHorizontalSlice; j++)
+            {
+                selectedRegions[i][j] = [NSNumber numberWithInteger: ((totalRegionPerVerticalSlice * j) + i)];
+            }
+        }
+        
+        // Remove the regions out of total regions per slice based on difficulty.
+        for (int i = 0; i < totalRegionPerVerticalSlice; i++)
+        {
+            NSMutableArray *selectedRegion = selectedRegions[i];
+            for (int j = 0; j < regionSelectedInverse; j++) {
+                NSInteger eliminateRegionIndex = arc4random_uniform(selectedRegion.count);
+                [selectedRegion removeObjectAtIndex:eliminateRegionIndex];
+            }
+            
+            [selectedRegionIndices addObjectsFromArray:selectedRegion];
+        }
+        
+        NSMutableArray *squaresClone = [NSMutableArray arrayWithArray:[squares copy]];
+        NSMutableArray *selectedVisibleCells = [NSMutableArray arrayWithCapacity:numberOfVisibleCells];
+        NSInteger totalVisibleCells = numberOfVisibleCells;
+        
+        do
+        {
+            int cellIndex = arc4random_uniform(squaresClone.count);
+            VPSudokuCell *cell = squaresClone[cellIndex];
+            
+            [cell toggleVisibleState];
+            [selectedVisibleCells addObject:cell];
+            totalVisibleCells--;
+            
+            [squaresClone removeObjectAtIndex:cellIndex];
+        } while (totalVisibleCells > 0 &&
+                 squaresClone.count > 0);
+    }    
 }
 
 
@@ -126,8 +195,6 @@ const NSInteger totalRegionPerHorizontalSlice = 3;
         UILabel *label = [[UILabel alloc] init];
         const NSInteger width = 40.0f;
         [label setFrame:CGRectMake(cell.down * width, cell.across * width, width, width)];
-//        NSLog(@"%d %d %d", cell.down, cell.across, cell.value);
-//        [label setAlpha:0.0f];
         NSString *labelText = [NSString stringWithFormat:@"%d", cell.value];
         [label setText:labelText];
         
@@ -137,7 +204,10 @@ const NSInteger totalRegionPerHorizontalSlice = 3;
 }
 
 
-- (VPSudokuCell *) createCellWithCurrentSquare : (NSInteger )currentSquareNumber AndValue : (NSInteger)randomValue
+#pragma mark - Cell Initialization
+
+- (VPSudokuCell *) createCellWithCurrentSquare : (NSInteger )currentSquareNumber
+                                      AndValue : (NSInteger)randomValue
 {
     VPSudokuCell *tempCell = [[VPSudokuCell alloc] init];
     
@@ -221,6 +291,7 @@ const NSInteger totalRegionPerHorizontalSlice = 3;
     return value;
 }
 
+#pragma mark - Validation
 
 -(BOOL) validateConflict : (VPSudokuCell *) newItem
 {
@@ -244,6 +315,22 @@ const NSInteger totalRegionPerHorizontalSlice = 3;
 }
 
 
+- (void)validateRulesAndSettings
+{
+    NSAssert(DifficultyStateEasy == difficultyState ||
+             DifficultyStateMedium == difficultyState ||
+             DifficultyStateHard == difficultyState,
+             @"Incorrect Difficulty State");
+    
+    NSAssert(DIFFICULTY_EASY ==  _difficultySlider.value ||
+             DIFFICULTY_MEDIUM == _difficultySlider.value ||
+             DIFFICULTY_HARD == _difficultySlider.value,
+             @"Incorrect Difficulty Value in slider");
+}
+
+
+#pragma mark - User Actions Bindings
+
 - (IBAction)generateSudokuGrid:(id)sender
 {
     NSLog(@"Generating New Sudoku Grid");
@@ -265,96 +352,6 @@ const NSInteger totalRegionPerHorizontalSlice = 3;
 {
     [self validateRulesAndSettings];
     [self initializeGrid];
-}
-
-
-- (void)initializeGrid
-{
-    for(VPSudokuCell *currentCell in squares)
-    {
-        if(nil != currentCell)
-        {
-            [currentCell setVisibleState:NO];
-        }
-    }
-    
-    @autoreleasepool {
-    
-        // Get the selected positions.
-        NSMutableArray *totalColoums = [NSMutableArray arrayWithCapacity:9];
-        for(int i = 0 ; i < 9; i++)
-        {
-            NSNumber *colNum = [NSNumber numberWithInteger:(i+1)];
-            [totalColoums addObject:colNum];
-        }
-        
-        // We inverse a no correlation value (0 means complete spread).
-        // Then divide it by total number of regions available.
-        // That gives how many regions shall the cells be spread across.
-        // So for easy level, the spread should be across all the regions.
-        // Hence, we divide by total regions.
-        const CGFloat SPREAD_PER_REGION = 1.0f / 3.0f;
-        NSInteger regionsSelected =  (1 - correlationValue) / SPREAD_PER_REGION; // Get total of number of regions we should select.
-        if(0 == regionsSelected)
-            regionsSelected++; // Need atleast one region per slice
-        
-        NSInteger regionSelectedInverse = totalRegionPerHorizontalSlice - regionsSelected; // Use elimination method to remove region from complete region list.
-        NSMutableArray *selectedRegions = [NSMutableArray arrayWithCapacity:3];
-        NSMutableArray *selectedRegionIndices = [NSMutableArray arrayWithCapacity:(regionsSelected * totalRegionPerVerticalSlice)];
-        
-        // Fill total number regions per slice
-        for (int i = 0; i < totalRegionPerVerticalSlice; i++)
-        {
-            selectedRegions[i] = [NSMutableArray arrayWithCapacity:totalRegionPerHorizontalSlice];
-            
-            for (int j = 0; j < totalRegionPerHorizontalSlice; j++)
-            {
-                selectedRegions[i][j] = [NSNumber numberWithInteger: ((totalRegionPerVerticalSlice * j) + i)];
-            }
-        }
-        
-        // Remove the regions out of total regions per slice based on difficulty.
-        for (int i = 0; i < totalRegionPerVerticalSlice; i++)
-        {
-            NSMutableArray *selectedRegion = selectedRegions[i];
-            for (int j = 0; j < regionSelectedInverse; j++) {
-                NSInteger eliminateRegionIndex = arc4random_uniform(selectedRegion.count);
-                [selectedRegion removeObjectAtIndex:eliminateRegionIndex];
-            }
-            
-            [selectedRegionIndices addObjectsFromArray:selectedRegion];
-        }
-        
-        NSMutableArray *squaresClone = [NSMutableArray arrayWithArray:[squares copy]];
-        NSMutableArray *selectedVisibleCells = [NSMutableArray arrayWithCapacity:numberOfVisibleCells];
-        NSInteger totalVisibleCells = numberOfVisibleCells;
-        
-        do
-        {
-            int cellIndex = arc4random_uniform(squaresClone.count);
-            VPSudokuCell *cell = squaresClone[cellIndex];
-            
-            [cell toggleVisibleState];
-            [selectedVisibleCells addObject:cell];
-            totalVisibleCells--;
-            
-            [squaresClone removeObjectAtIndex:cellIndex];
-        } while (totalVisibleCells > 0 &&
-                 squaresClone.count > 0);
-    }
-    
-//    for (VPSudokuCell *cell in selectedVisibleCells)
-//    {
-//        NSLog(@"cell index %d", cell.index);
-//    }
-//    
-//    NSLog(@"Number of visible cells remaining %d", numberOfVisibleCells);
-}
-
-
-- (IBAction)solveSudoku:(id)sender
-{
-    
 }
 
 
@@ -403,6 +400,8 @@ const NSInteger totalRegionPerHorizontalSlice = 3;
     [self setDifficultySettings];
 }
 
+
+#pragma mark - Difficulty Management
 
 - (void)setDifficultySettings
 {
@@ -467,20 +466,6 @@ const NSInteger totalRegionPerHorizontalSlice = 3;
 //    NSLog(@"Random Value %f", randomValue);
 //    NSLog(@"Correlation Value %f", correlationValue);
 //    NSLog(@"Lower Bound Cells %d", lowerBoundOfCell);
-}
-
-
-- (void)validateRulesAndSettings
-{
-    NSAssert(DifficultyStateEasy == difficultyState ||
-             DifficultyStateMedium == difficultyState ||
-             DifficultyStateHard == difficultyState,
-             @"Incorrect Difficulty State");
-    
-    NSAssert(DIFFICULTY_EASY ==  _difficultySlider.value ||
-             DIFFICULTY_MEDIUM == _difficultySlider.value ||
-             DIFFICULTY_HARD == _difficultySlider.value,
-             @"Incorrect Difficulty Value in slider");
 }
 
 @end
