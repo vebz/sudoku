@@ -17,6 +17,7 @@
 @property (nonatomic, assign) NSInteger index;
 
 @property (nonatomic, strong) UILabel *cellView;
+@property (nonatomic, strong) UIButton *interactiveView;
 
 - (void) toggleVisibleState;
 

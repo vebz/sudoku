@@ -58,8 +58,8 @@ enum DifficultyState
     // Dispose of any resources that can be recreated.
 }
 
-#pragma mark - Grid Generation
 
+#pragma mark - Grid Generation
 - (void)initializeGrid
 {
     for(VPSudokuCell *currentCell in squares)
@@ -70,11 +70,11 @@ enum DifficultyState
         }
     }
     
-    @autoreleasepool {
-        
+    @autoreleasepool
+    {
         // Get the selected positions.
         NSMutableArray *totalColoums = [NSMutableArray arrayWithCapacity:9];
-        for(int i = 0 ; i < 9; i++)
+        for(int i = 0 ; i < TOTAL_SUDOKU_NUMBERS; i++)
         {
             NSNumber *colNum = [NSNumber numberWithInteger:(i+1)];
             [totalColoums addObject:colNum];
@@ -87,7 +87,9 @@ enum DifficultyState
         // Hence, we divide by total regions.
         const CGFloat SPREAD_PER_REGION = 1.0f / 3.0f;
         NSInteger regionsSelected =  (1 - correlationValue) / SPREAD_PER_REGION; // Get total of number of regions we should select.
-        if(0 == regionsSelected)
+
+        const NSInteger MINIMUM_BOUND = 0;
+        if(MINIMUM_BOUND == regionsSelected)
             regionsSelected++; // Need atleast one region per slice
         
         NSInteger regionSelectedInverse = totalRegionPerHorizontalSlice - regionsSelected; // Use elimination method to remove region from complete region list.
@@ -141,11 +143,11 @@ enum DifficultyState
 {
     currentSquare = 0;
     
-    for(int i = 0; i < 81; i++)
+    for(int i = 0; i < GRID_DIMENSION; i++)
     {
-        available[i] = [NSMutableArray arrayWithCapacity:9];
+        available[i] = [NSMutableArray arrayWithCapacity:NUMBER_OF_CELLS_PER_ROW_AND_COLS];
         
-        for(int j = 0; j < 9; j++)
+        for(int j = 0; j < NUMBER_OF_CELLS_PER_ROW_AND_COLS; j++)
         {
             available[i][j] = [NSNumber numberWithInt:(j+1)];
         }
@@ -154,7 +156,7 @@ enum DifficultyState
     do
     {
         NSMutableArray *currentAvailable = (NSMutableArray *)available[currentSquare];
-        if(!currentAvailable.count == 0)
+        if(!(currentAvailable.count == 0))
         {
             NSInteger randPosInCurrAvailable = arc4random_uniform(currentAvailable.count);
             NSNumber *valueNumber = currentAvailable[randPosInCurrAvailable];
@@ -176,7 +178,7 @@ enum DifficultyState
         }
         else
         {
-            for(int j=0; j<9; j++)
+            for(int j = 0; j < 9; j++)
             {
                 currentAvailable[j] = [NSNumber numberWithInt:(j+1)];
             }
@@ -185,27 +187,35 @@ enum DifficultyState
             currentSquare--;
         }
     } while(currentSquare < 81);
-    
+
+#ifdef DEBUG
     NSLog(@"Grid generated");
+#endif //DEBUG
     
     // Debug output.
     for(int i = 0; i < 81; i++)
     {
         VPSudokuCell *cell = squares[i];
+        
         UILabel *label = [[UILabel alloc] init];
         const NSInteger width = 40.0f;
         [label setFrame:CGRectMake(cell.down * width, cell.across * width, width, width)];
         NSString *labelText = [NSString stringWithFormat:@"%d", cell.value];
         [label setText:labelText];
         
+        UIButton *interactiveCell = [[UIButton alloc] init];
+        [interactiveCell setFrame:CGRectMake(cell.down * width, cell.across * width, width, width)];
+        interactiveCell.backgroundColor =[UIColor blueColor];
+        
         cell.cellView = label;
+        cell.interactiveView = interactiveCell;
+        
         [self.view addSubview:label];
     }
 }
 
 
 #pragma mark - Cell Initialization
-
 - (VPSudokuCell *) createCellWithCurrentSquare : (NSInteger )currentSquareNumber
                                       AndValue : (NSInteger)randomValue
 {
@@ -226,11 +236,14 @@ enum DifficultyState
 - (NSInteger) getAcrossValue : (NSInteger ) sqNum
 {
     NSInteger acrossValue;
+    const NSInteger MAX_MODULO_LIMIT = 9;
+
+    acrossValue = sqNum % MAX_MODULO_LIMIT;
     
-    acrossValue = sqNum % 9;
-    
-    if(0 == acrossValue)
-        acrossValue = 9;
+    // Edge Case
+    const NSInteger PERFECT_DIVISOR_RESULT = 0;
+    if(PERFECT_DIVISOR_RESULT == acrossValue)
+        acrossValue = MAX_MODULO_LIMIT;
     
     return acrossValue;
 }
@@ -239,7 +252,8 @@ enum DifficultyState
 - (NSInteger) getDownValue : (NSInteger ) sqNum
 {
     NSInteger value = [self getAcrossValue:sqNum];
-    value = (value == 9)? (sqNum / 9) : ((sqNum / 9) + 1);
+    const NSInteger MAX_MODULO_LIMIT = 9;
+    value = (value == MAX_MODULO_LIMIT)? (sqNum / MAX_MODULO_LIMIT) : ((sqNum / MAX_MODULO_LIMIT) + 1); // Change from 0 to lower bound limit
     
     return value;
 }
@@ -251,39 +265,67 @@ enum DifficultyState
     NSInteger acrossValue = [self getAcrossValue:sqNum];
     NSInteger downValue = [self getDownValue:sqNum];
     
-    if(1 <= acrossValue && acrossValue < 4 && 1 <= downValue && downValue < 4)
+    const NSInteger REGION_1_4_7_ACROSS_LOW = 1;
+    const NSInteger REGION_1_4_7_ACROSS_HIGH = 4;
+
+    const NSInteger REGION_2_5_8_ACROSS_LOW = 4;
+    const NSInteger REGION_2_5_8_ACROSS_HIGH = 7;
+
+    const NSInteger REGION_3_6_9_ACROSS_LOW = 7;
+    const NSInteger REGION_3_6_9_ACROSS_HIGH = 10;
+
+    const NSInteger REGION_1_2_3_DOWN_LOW = 1;
+    const NSInteger REGION_1_2_3_DOWN_HIGH = 4;
+    
+    const NSInteger REGION_4_5_6_DOWN_LOW = 4;
+    const NSInteger REGION_4_5_6_DOWN_HIGH = 7;
+
+    const NSInteger REGION_7_8_9_DOWN_LOW = 7;
+    const NSInteger REGION_7_8_9_DOWN_HIGH = 10;
+    
+    // TODO: Need to make this algorithm generic.
+    if(REGION_1_4_7_ACROSS_LOW <= acrossValue && acrossValue < REGION_1_4_7_ACROSS_HIGH &&
+       REGION_1_2_3_DOWN_LOW <= downValue && downValue < REGION_1_2_3_DOWN_HIGH)
     {
         value = 1;
     }
-    else if(4 <= acrossValue && acrossValue < 7 && 1 <= downValue && downValue < 4)
+    else if(REGION_2_5_8_ACROSS_LOW <= acrossValue && acrossValue < REGION_2_5_8_ACROSS_HIGH &&
+            REGION_1_2_3_DOWN_LOW <= downValue && downValue < REGION_1_2_3_DOWN_HIGH)
     {
         value = 2;
     }
-    else if(7 <= acrossValue && acrossValue < 10 && 1 <= downValue && downValue < 4)
+    else if(REGION_3_6_9_ACROSS_LOW <= acrossValue && acrossValue < REGION_3_6_9_ACROSS_HIGH &&
+            REGION_1_2_3_DOWN_LOW <= downValue && downValue < REGION_1_2_3_DOWN_HIGH)
     {
         value = 3;
     }
-    else if(1 <= acrossValue && acrossValue < 4 && 4 <= downValue && downValue < 7)
+    else if(REGION_1_4_7_ACROSS_LOW <= acrossValue && acrossValue < REGION_1_4_7_ACROSS_HIGH &&
+            REGION_4_5_6_DOWN_LOW <= downValue && downValue < REGION_4_5_6_DOWN_HIGH)
     {
         value = 4;
     }
-    else if(4 <= acrossValue && acrossValue < 7 && 4 <= downValue && downValue < 7)
+    else if(REGION_2_5_8_ACROSS_LOW <= acrossValue && acrossValue < REGION_2_5_8_ACROSS_HIGH &&
+            REGION_4_5_6_DOWN_LOW <= downValue && downValue < REGION_4_5_6_DOWN_HIGH)
     {
         value = 5;
     }
-    else if(7 <= acrossValue && acrossValue < 10 && 4 <= downValue && downValue < 7)
+    else if(REGION_3_6_9_ACROSS_LOW <= acrossValue && acrossValue < REGION_3_6_9_ACROSS_HIGH &&
+            REGION_4_5_6_DOWN_LOW <= downValue && downValue < REGION_4_5_6_DOWN_HIGH)
     {
         value = 6;
     }
-    else if(1 <= acrossValue && acrossValue < 4 && 7 <= downValue && downValue < 10)
+    else if(REGION_1_4_7_ACROSS_LOW <= acrossValue && acrossValue < REGION_1_4_7_ACROSS_HIGH &&
+            REGION_7_8_9_DOWN_LOW <= downValue && downValue < REGION_7_8_9_DOWN_HIGH)
     {
         value = 7;
     }
-    else if(4 <= acrossValue && acrossValue < 7 && 7 <= downValue && downValue < 10)
+    else if(REGION_2_5_8_ACROSS_LOW <= acrossValue && acrossValue < REGION_2_5_8_ACROSS_HIGH &&
+            REGION_7_8_9_DOWN_LOW <= downValue && downValue < REGION_7_8_9_DOWN_HIGH)
     {
         value = 8;
     }
-    else if(7 <= acrossValue && acrossValue < 10 && 7 <= downValue && downValue < 10)
+    else if(REGION_3_6_9_ACROSS_LOW <= acrossValue && acrossValue < REGION_3_6_9_ACROSS_HIGH &&
+            REGION_7_8_9_DOWN_LOW <= downValue && downValue < REGION_7_8_9_DOWN_HIGH)
     {
         value = 9;
     }
@@ -291,8 +333,8 @@ enum DifficultyState
     return value;
 }
 
-#pragma mark - Validation
 
+#pragma mark - Validation
 -(BOOL) validateConflict : (VPSudokuCell *) newItem
 {
     BOOL conflict = NO;
@@ -330,7 +372,6 @@ enum DifficultyState
 
 
 #pragma mark - User Actions Bindings
-
 - (IBAction)generateSudokuGrid:(id)sender
 {
     NSLog(@"Generating New Sudoku Grid");
@@ -402,7 +443,6 @@ enum DifficultyState
 
 
 #pragma mark - Difficulty Management
-
 - (void)setDifficultySettings
 {
     @autoreleasepool {
@@ -451,7 +491,8 @@ enum DifficultyState
         }
         
         double ratio = numberOfVisibleCells / 81.0f;
-        if(ratio < 0.5f)
+        const CGFloat RATIO_HALF = 0.5f;
+        if(ratio < RATIO_HALF)
         {
             double floor = ceilf(numberOfVisibleCells / NUMBER_OF_CELLS_PER_ROW_AND_COLS);
             lowerBoundOfCell = floor;
@@ -462,10 +503,6 @@ enum DifficultyState
             lowerBoundOfCell = ceiling;
         }
     }
-//    NSLog(@"Number of visible cells %d", numberOfVisibleCells);
-//    NSLog(@"Random Value %f", randomValue);
-//    NSLog(@"Correlation Value %f", correlationValue);
-//    NSLog(@"Lower Bound Cells %d", lowerBoundOfCell);
 }
 
 @end
